@@ -26,6 +26,13 @@
       },
       "applicationUrl": "https://localhost:5001;http://localhost:5000"
     },
+    "Azure Dev Spaces": {
+      "commandName": "AzureDevSpaces",
+      "launchBrowser": true,
+      "resourceGroup": "hossamExperiment",
+      "aksName": "hossamAks",
+      "subscriptionId": "e54a2925-af7f-4b05-9ba1-2155c5fe8a8e"
+    },
     "Docker": {
       "commandName": "Docker",
       "launchBrowser": true,
