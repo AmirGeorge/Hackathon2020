@@ -5,6 +5,10 @@ VisualStudioVersion = 16.0.30320.27
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AspNetCoreApp", "AspNetCoreApp\AspNetCoreApp.csproj", "{2C796B5C-D3F7-4771-8AC9-903388E4C9CC}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Scripts", "Scripts", "{33740580-F405-4638-99C9-14A2377AC9F6}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Dockerizer", "Dockerizer\Dockerizer.csproj", "{2F698D20-7FA0-4A67-BF92-B5B686FC61E6}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -15,9 +19,16 @@ Global
 		{2C796B5C-D3F7-4771-8AC9-903388E4C9CC}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{2C796B5C-D3F7-4771-8AC9-903388E4C9CC}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{2C796B5C-D3F7-4771-8AC9-903388E4C9CC}.Release|Any CPU.Build.0 = Release|Any CPU
+		{2F698D20-7FA0-4A67-BF92-B5B686FC61E6}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{2F698D20-7FA0-4A67-BF92-B5B686FC61E6}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{2F698D20-7FA0-4A67-BF92-B5B686FC61E6}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{2F698D20-7FA0-4A67-BF92-B5B686FC61E6}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{2F698D20-7FA0-4A67-BF92-B5B686FC61E6} = {33740580-F405-4638-99C9-14A2377AC9F6}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {DC153EE8-7AA8-4E8F-8FFB-B9F5BDC0328D}
