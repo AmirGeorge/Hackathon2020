@@ -25,7 +25,9 @@ namespace Dockerizer
 
             Thread.Sleep(2000);
 
-            RunDockerImage(imageRepositoryAndTag);
+            //RunDockerImage(imageRepositoryAndTag);
+            
+            PushDockerImage(imageRepositoryAndTag);
         }
 
         public void GenerateDockerFile(string projectPath)
@@ -69,8 +71,8 @@ namespace Dockerizer
             var dockerfilePath = Path.Combine(projectPath, "Dockerfile");
             var projectName = GetCsprojFilepathAndProjectName(projectPath).ProjectName;
             
-            var imageRepositoryName = projectName.ToLowerInvariant();
-            var imageTagName = Guid.NewGuid().ToString("N");
+            var imageRepositoryName = "hhazem/test-repo";
+            var imageTagName = "latest";
             var imageRepositoryAndTag = $"{imageRepositoryName}:{imageTagName}";
 
             RunProcessInternal(
@@ -90,6 +92,20 @@ namespace Dockerizer
             RunProcessInternal(
                 "docker",
                 $"run -d -p {externalHttpPort}:{internalHttpPort} --name {imageRepositoryName}-bydockerizer {imageRepositoryAndTag}");
+
+            Console.WriteLine($"Docker image now up and running at port {externalHttpPort}.");
+        }
+
+        public void PushDockerImage(string imageRepositoryAndTag)
+        {
+            var externalHttpPort = "32841";
+            var internalHttpPort = "80";
+
+            var imageRepositoryName = imageRepositoryAndTag.Split(':')[0];
+
+            RunProcessInternal(
+                "docker",
+                $"push {imageRepositoryAndTag}");
 
             Console.WriteLine($"Docker image now up and running at port {externalHttpPort}.");
         }
