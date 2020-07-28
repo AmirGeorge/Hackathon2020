@@ -70,13 +70,15 @@ namespace GenerateKubernetesFiles
 
             CreateAKS(azSubscription, resourceGroupName, clusterName);
 
-            HelmInit();
-
-            setKubctlContext(resourceGroupName, clusterName);
+            SetKubectlContext(resourceGroupName, clusterName);
 
             HelmInit();
 
             RunHelm();
+
+            ExtractIp();
+
+            OpenHomePage();
         }
 
         private void GenerateTargetFile(string projectPath, string projectName, string targetFile, string targetExt, Dictionary<string, string> replacements, bool addInsideTemplates)
@@ -127,7 +129,7 @@ namespace GenerateKubernetesFiles
                 $" New-AzAks -Force -ResourceGroupName {resourceGroupName} -Name {aksName} -location westeurope -KubernetesVersion 1.17.7");
         }
 
-        private void setKubctlContext(string resourceGroupName, string aksName)
+        private void SetKubectlContext(string resourceGroupName, string aksName)
         {
             RunProcessInternal(
                 "powershell.exe",
@@ -146,6 +148,20 @@ namespace GenerateKubernetesFiles
             RunProcessInternal(
                 "powershell.exe",
                 $" helm install -n {_projectName} {_projectPath}/charts/{_projectName}/");
+        }
+
+        private void ExtractIp()
+        {
+            RunProcessInternal(
+                "powershell.exe",
+                $@"kubectl get service {_projectName})[1] | Out-File -filePath C:\Files\LUIS\Files\Hackaton\ip.txt");
+        }
+
+        private void OpenHomePage()
+        {
+            var ipAsString = File.ReadAllText(@"C:\Files\LUIS\Files\Hackaton\ip.txt");
+            var ip = ipAsString.Split(' ').Select(s => s.Trim()).ToList()[9];
+            Process.Start(new ProcessStartInfo("cmd", $"/c start http://{ip}/weatherforecast") { CreateNoWindow = true });
         }
 
         private static void RunProcessInternal(string processName, string arguments)
