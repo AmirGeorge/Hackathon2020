@@ -46,17 +46,20 @@ namespace GenerateKubernetesFiles
                 { ProjectNamePlaceHolder, projectName.ToLower() }
             };
 
-            // Generate Deployment File
-            GenerateTargetFile(projectPath, projectName, "deployment", replacements, addInsideTemplates: true);
+            // Generate Deployment File.
+            GenerateTargetFile(projectPath, projectName, "deployment", "yaml", replacements, addInsideTemplates: true);
 
-            // Generate Values Files
-            GenerateTargetFile(projectPath, projectName, "values", replacements, addInsideTemplates: false);
+            // Generate Values Files.
+            GenerateTargetFile(projectPath, projectName, "values", "yaml", replacements, addInsideTemplates: false);
 
-            // Generate Chart Files
-            GenerateTargetFile(projectPath, projectName, "chart", replacements, addInsideTemplates: false);
+            // Generate Chart Files.
+            GenerateTargetFile(projectPath, projectName, "Chart", "yaml", replacements, addInsideTemplates: false);
+
+            // Generate Helpers.
+            GenerateTargetFile(projectPath, projectName, "_helpers", "tpl", replacements, addInsideTemplates: true);
         }
 
-        private void GenerateTargetFile(string projectPath, string projectName, string targetFile, Dictionary<string, string> replacements, bool addInsideTemplates)
+        private void GenerateTargetFile(string projectPath, string projectName, string targetFile, string targetExt, Dictionary<string, string> replacements, bool addInsideTemplates)
         {
             var templatesSubPath = string.Empty;
             if (addInsideTemplates)
@@ -64,7 +67,7 @@ namespace GenerateKubernetesFiles
                 templatesSubPath = "templates/";
             }
 
-            var targetFileContent = File.ReadAllText($"Templates/{targetFile}Template.yml");
+            var targetFileContent = File.ReadAllText($"Templates/{targetFile}Template.{targetExt}");
 
             foreach (var kvPair in replacements)
             {
@@ -75,11 +78,11 @@ namespace GenerateKubernetesFiles
                 .Replace(placeholder, value);
             }
 
-            var filePath = Path.Combine(projectPath, $"gcharts/{projectName}/{templatesSubPath}");
+            var filePath = Path.Combine(projectPath, $"charts/{projectName}/{templatesSubPath}");
             FileInfo file = new FileInfo(filePath);
             file.Directory.Create();
 
-            var targetFileOutputPath = Path.Combine(filePath, $"{targetFile}.yaml");
+            var targetFileOutputPath = Path.Combine(filePath, $"{targetFile}.{targetExt}");
             File.WriteAllText(targetFileOutputPath, targetFileContent);
         }
 

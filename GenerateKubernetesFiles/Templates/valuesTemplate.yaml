@@ -4,8 +4,8 @@
 fullnameOverride: __projectname__
 replicaCount: 1
 image:
-  repository: __projectname__
-  tag: stable
+  repository: hhazem/test-repo
+  tag: __projectname__
   pullPolicy: IfNotPresent
 imagePullSecrets: []
   # Optionally specify an array of imagePullSecrets.

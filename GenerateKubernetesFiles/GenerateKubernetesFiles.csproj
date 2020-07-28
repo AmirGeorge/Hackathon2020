@@ -6,13 +6,16 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <None Update="Templates\chartTemplate.yml">
+    <None Update="Templates\ChartTemplate.yaml">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Update="Templates\valuesTemplate.yml">
+    <None Update="Templates\valuesTemplate.yaml">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Update="Templates\deploymentTemplate.yml">
+    <None Update="Templates\deploymentTemplate.yaml">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="Templates\_helpersTemplate.tpl">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
   </ItemGroup>
