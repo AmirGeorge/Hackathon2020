@@ -17,6 +17,23 @@ namespace GenerateKubernetesFiles
             k8sUtility.GenerateK8sFiles(projectPath);
 
             Console.WriteLine("K8s Generator complete. You can press any key to exit!");
+
+            Console.WriteLine("Please enter the subscription id:");
+
+            var subscriptionId = Console.ReadLine();
+
+            Console.WriteLine("Please enter the resource group name:");
+
+            var resourceGroupName = Console.ReadLine();
+
+            Console.WriteLine("Please enter the cluster name:");
+
+            var aksName = Console.ReadLine();
+
+            k8sUtility.CreateCluster(subscriptionId, resourceGroupName, aksName);
+
+            Console.WriteLine("Cluster created successfully. You can press any key to exit!");
+
             Console.ReadLine();
         }
     }

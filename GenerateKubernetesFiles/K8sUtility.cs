@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -10,6 +11,8 @@ namespace GenerateKubernetesFiles
     public class K8sUtility
     {
         private const string ProjectNamePlaceHolder = "__projectname__";
+        private string _projectPath;
+        private string _projectName;
 
         /// <summary>
         /// Generate K8s Files.
@@ -34,29 +37,46 @@ namespace GenerateKubernetesFiles
                 throw new Exception($"More than 1 csproj file found in {projectPath}");
             }
 
+            _projectPath = projectPath;
+
             var csprojFilePath = csprojFilePaths[0];
-            var projectName = csprojFilePath
-                .Replace(projectPath, string.Empty)
+            _projectName = csprojFilePath
+                .Replace(_projectPath, string.Empty)
                 .Replace("\\", string.Empty)
                 .Replace("/", string.Empty)
-                .Replace(".csproj", string.Empty);
+                .Replace(".csproj", string.Empty).ToLower();
 
             var replacements = new Dictionary<string, string>
             {
-                { ProjectNamePlaceHolder, projectName.ToLower() }
+                { ProjectNamePlaceHolder, _projectName }
             };
 
             // Generate Deployment File.
-            GenerateTargetFile(projectPath, projectName, "deployment", "yaml", replacements, addInsideTemplates: true);
+            GenerateTargetFile(projectPath, _projectName, "deployment", "yaml", replacements, addInsideTemplates: true);
 
             // Generate Values Files.
-            GenerateTargetFile(projectPath, projectName, "values", "yaml", replacements, addInsideTemplates: false);
+            GenerateTargetFile(projectPath, _projectName, "values", "yaml", replacements, addInsideTemplates: false);
 
             // Generate Chart Files.
-            GenerateTargetFile(projectPath, projectName, "Chart", "yaml", replacements, addInsideTemplates: false);
+            GenerateTargetFile(projectPath, _projectName, "Chart", "yaml", replacements, addInsideTemplates: false);
 
             // Generate Helpers.
-            GenerateTargetFile(projectPath, projectName, "_helpers", "tpl", replacements, addInsideTemplates: true);
+            GenerateTargetFile(projectPath, _projectName, "_helpers", "tpl", replacements, addInsideTemplates: true);
+        }
+
+        public void CreateCluster(string azSubscription, string resourceGroupName, string clusterName)
+        {
+            SetAzureSubscription(azSubscription);
+
+            CreateAKS(azSubscription, resourceGroupName, clusterName);
+
+            HelmInit();
+
+            setKubctlContext(resourceGroupName, clusterName);
+
+            HelmInit();
+
+            RunHelm();
         }
 
         private void GenerateTargetFile(string projectPath, string projectName, string targetFile, string targetExt, Dictionary<string, string> replacements, bool addInsideTemplates)
@@ -86,6 +106,73 @@ namespace GenerateKubernetesFiles
             File.WriteAllText(targetFileOutputPath, targetFileContent);
         }
 
+        private void SetAzContext(string token)
+        {
+            RunProcessInternal(
+                "az",
+                $"login");
+        }
 
+        private void SetAzureSubscription(string azSubscription)
+        {
+            RunProcessInternal(
+                "az",
+                $"account set --subscription {azSubscription}");
+        }
+
+        private void CreateAKS(string azSubscription, string resourceGroupName, string aksName)
+        {
+            RunProcessInternal(
+                "powershell.exe",
+                $" New-AzAks -Force -ResourceGroupName {resourceGroupName} -Name {aksName} -location westeurope -KubernetesVersion 1.17.7");
+        }
+
+        private void setKubctlContext(string resourceGroupName, string aksName)
+        {
+            RunProcessInternal(
+                "powershell.exe",
+                $" Import-AzAksCredential -Force -ResourceGroupName {resourceGroupName} -Name {aksName}");
+        }
+
+        private void HelmInit()
+        {
+            RunProcessInternal(
+                "powershell.exe",
+                $" helm init");
+        }
+
+        private void RunHelm()
+        {
+            RunProcessInternal(
+                "powershell.exe",
+                $" helm install -n {_projectName} {_projectPath}/charts/{_projectName}/");
+        }
+
+        private static void RunProcessInternal(string processName, string arguments)
+        {
+            var processInfo = new ProcessStartInfo(processName, arguments);
+
+            processInfo.CreateNoWindow = true;
+            processInfo.UseShellExecute = true;
+
+            int exitCode;
+            using (var process = new Process())
+            {
+                process.StartInfo = processInfo;
+
+                process.Start();
+                process.EnableRaisingEvents = true;
+                process.WaitForExit();
+
+                if (!process.HasExited)
+                {
+                    process.Kill();
+                }
+
+                exitCode = process.ExitCode;
+
+                process.Close();
+            }
+        }
     }
 }
