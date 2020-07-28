@@ -12,8 +12,14 @@ namespace Dockerizer
             
             var projectPath = Console.ReadLine();
 
+            Console.WriteLine("Please enter the path for the docker build context.");
+
+            var dockerContext = Console.ReadLine();
+
             var dockerizer = new Dockerizer();
-            dockerizer.Dockerize(projectPath);
+            dockerizer.Dockerize(
+                projectPath,
+                dockerContext);
 
             Console.WriteLine("Dockerization complete. You can press any key to exit!");
             Console.ReadLine();
