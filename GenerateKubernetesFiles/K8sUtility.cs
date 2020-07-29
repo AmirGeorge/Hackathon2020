@@ -66,15 +66,27 @@ namespace GenerateKubernetesFiles
 
         public void CreateCluster(string azSubscription, string resourceGroupName, string clusterName)
         {
+            SetAzContext();
+
             SetAzureSubscription(azSubscription);
+
+            Console.WriteLine($"starting to create the AKS cluster in subscription: {azSubscription}, resourceGroup: {resourceGroupName}, clusterName: {clusterName}");
 
             CreateAKS(azSubscription, resourceGroupName, clusterName);
 
+            Console.WriteLine($"Create AKS cluster successfully");
+
             SetKubectlContext(resourceGroupName, clusterName);
+
+            Console.WriteLine($"Initializing Helm.");
 
             HelmInit();
 
+            Console.WriteLine($"Running Helm.");
+
             RunHelm();
+
+            Console.WriteLine($"Helm completed.");
 
             ExtractIp();
 
@@ -108,18 +120,18 @@ namespace GenerateKubernetesFiles
             File.WriteAllText(targetFileOutputPath, targetFileContent);
         }
 
-        private void SetAzContext(string token)
+        private void SetAzContext()
         {
             RunProcessInternal(
-                "az",
-                $"login");
+                "powershell.exe",
+                $"az login");
         }
 
         private void SetAzureSubscription(string azSubscription)
         {
             RunProcessInternal(
-                "az",
-                $"account set --subscription {azSubscription}");
+                "powershell.exe",
+                $"az account set --subscription {azSubscription}");
         }
 
         private void CreateAKS(string azSubscription, string resourceGroupName, string aksName)
@@ -140,21 +152,21 @@ namespace GenerateKubernetesFiles
         {
             RunProcessInternal(
                 "powershell.exe",
-                $" helm init");
+                $"helm init --wait");
         }
 
         private void RunHelm()
         {
             RunProcessInternal(
                 "powershell.exe",
-                $" helm install -n {_projectName} {_projectPath}/charts/{_projectName}/");
+                @$"helm install --wait -n {_projectName} '{_projectPath}\charts\{_projectName}\'");
         }
 
         private void ExtractIp()
         {
             RunProcessInternal(
                 "powershell.exe",
-                $@"kubectl get service {_projectName})[1] | Out-File -filePath C:\Files\LUIS\Files\Hackaton\ip.txt");
+                $@"(kubectl get service {_projectName})[1] | Out-File -filePath C:\Files\LUIS\Files\Hackaton\ip.txt");
         }
 
         private void OpenHomePage()
@@ -169,7 +181,8 @@ namespace GenerateKubernetesFiles
             var processInfo = new ProcessStartInfo(processName, arguments);
 
             processInfo.CreateNoWindow = true;
-            processInfo.UseShellExecute = true;
+            processInfo.UseShellExecute = false;
+            processInfo.RedirectStandardOutput = true;
 
             int exitCode;
             using (var process = new Process())
@@ -178,6 +191,9 @@ namespace GenerateKubernetesFiles
 
                 process.Start();
                 process.EnableRaisingEvents = true;
+
+                Console.WriteLine(process.StandardOutput.ReadToEnd());
+
                 process.WaitForExit();
 
                 if (!process.HasExited)
