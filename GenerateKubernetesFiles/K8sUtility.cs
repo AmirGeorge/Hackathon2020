@@ -11,6 +11,7 @@ namespace GenerateKubernetesFiles
     public class K8sUtility
     {
         private const string ProjectNamePlaceHolder = "__projectname__";
+        private const string filePath = @"C:\Files\LUIS\Files\Hackaton\ip.txt";
         private string _projectPath;
         private string _projectName;
 
@@ -164,14 +165,31 @@ namespace GenerateKubernetesFiles
 
         private void ExtractIp()
         {
-            RunProcessInternal(
-                "powershell.exe",
-                $@"(kubectl get service {_projectName})[1] | Out-File -filePath C:\Files\LUIS\Files\Hackaton\ip.txt");
+            var flag = false;
+            string ip = null;
+            do
+            {
+                if (flag)
+                {
+                    System.Threading.Thread.Sleep(10000);
+                    Console.WriteLine("Waiting for the service to start.");
+                }
+
+                RunProcessInternal(
+                    "powershell.exe",
+                    $@"(kubectl get service {_projectName})[1] | Out-File -filePath {filePath}");
+                var ipAsString = File.ReadAllText(filePath);
+                ip = ipAsString.Split(' ').Select(s => s.Trim()).ToList()[9];
+
+                flag = true;
+
+            }
+            while (ip == null || ip == "<pending>");
         }
 
         private void OpenHomePage()
         {
-            var ipAsString = File.ReadAllText(@"C:\Files\LUIS\Files\Hackaton\ip.txt");
+            var ipAsString = File.ReadAllText(filePath);
             var ip = ipAsString.Split(' ').Select(s => s.Trim()).ToList()[9];
             Process.Start(new ProcessStartInfo("cmd", $"/c start http://{ip}/weatherforecast") { CreateNoWindow = true });
         }
